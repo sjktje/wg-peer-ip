@@ -222,6 +222,40 @@ def test_cli_handshake_rejection(
 
 
 @pytest.mark.parametrize(
+    ("error", "message"),
+    [
+        (
+            subprocess.TimeoutExpired("wg", 10),
+            "wg timed out after 10 seconds",
+        ),
+        (
+            subprocess.CalledProcessError(
+                1, "wg", stderr="Unable to access interface: No such device\n"
+            ),
+            "wg failed: Unable to access interface: No such device",
+        ),
+    ],
+    ids=["timeout", "command-failure"],
+)
+def test_cli_handshake_query_failure(
+    wg: Mock,
+    capsys: pytest.CaptureFixture[str],
+    error: Exception,
+    message: str,
+) -> None:
+    """Suppress the retrieved endpoint when the handshake query fails."""
+    wg.side_effect = [wg.return_value, error]
+    assert cli.main(["--max-handshake-age", "300", "wg0", KEY]) == 1
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == f"wg-peer-ip: {message}\n"
+    assert [call.args[0] for call in wg.call_args_list] == [
+        ["wg", "show", "wg0", "endpoints"],
+        ["wg", "show", "wg0", "latest-handshakes"],
+    ]
+
+
+@pytest.mark.parametrize(
     "args",
     [
         ["-4", "-6", "wg0", KEY],
