@@ -13,6 +13,13 @@ install this project from its checkout:
 pipx install .
 ```
 
+Published release wheels can also be installed directly, without cloning the
+repository. For version 0.1.0:
+
+```sh
+pipx install https://github.com/sjktje/wg-peer-ip/releases/download/v0.1.0/wg_peer_ip-0.1.0-py3-none-any.whl
+```
+
 The caller must have permission to query the interface with `wg show` (typically
 root or the appropriate network administration capability on Linux). The script
 does not invoke `sudo`. If running through `sudo`, ensure the installed
@@ -100,3 +107,29 @@ Python 3.10 and the latest stable Python 3 release. Each job validates the
 Poetry metadata and lock file, installs dependencies, and builds the wheel and
 source distribution before testing. The workflow runs on pushes and pull
 requests, and can also be started manually from the Actions tab.
+
+### Releases
+
+The release workflow publishes packages to GitHub Releases, not PyPI. It is
+triggered by pushing a tag beginning with `v`.
+
+1. Set the version in `pyproject.toml` and add a matching, dated entry to
+   `CHANGELOG.md`. Retain the Unreleased section for future changes.
+2. Commit and push the release preparation, including the release workflow,
+   and confirm that CI passes.
+3. Create and push the matching tag, for example:
+
+```sh
+git tag -a v0.1.0 -m "Release 0.1.0"
+git push origin v0.1.0
+```
+
+The workflow rejects tags that do not match the package version or lack a
+dated, non-empty changelog entry. It builds the wheel and source distribution
+and runs all tests, including the installed-wheel smoke tests. Only after those
+checks pass does a separate job create the GitHub release, using the changelog
+entry as its notes and attaching the tested distributions. The publishing job
+uses GitHub's built-in token; no additional secrets are required.
+
+Check the release workflow result in the Actions tab before sharing the
+download URL. If validation or testing fails, no release is created.
