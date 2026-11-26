@@ -3,6 +3,8 @@ name = "wg-peer-ip"
 version = "0.1.0"
 description = "Retrieve a WireGuard peer's endpoint IP address."
 readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
 dependencies = []
 
@@ -16,7 +18,7 @@ packages = [{ include = "wg_peer_ip", from = "src" }]
 pytest = ">=8,<10"
 
 [build-system]
-requires = ["poetry-core>=2.0,<3.0"]
+requires = ["poetry-core>=2.2,<3.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
