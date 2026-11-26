@@ -1,0 +1,23 @@
+[project]
+name = "wg-peer-ip"
+version = "0.1.0"
+description = "Retrieve a WireGuard peer's endpoint IP address."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+wg-peer-ip = "wg_peer_ip.cli:main"
+
+[tool.poetry]
+packages = [{ include = "wg_peer_ip", from = "src" }]
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8,<10"
+
+[build-system]
+requires = ["poetry-core>=2.0,<3.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
