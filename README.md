@@ -92,3 +92,11 @@ checking help, IPv4/IPv6 lookups, and failure handling. No real WireGuard
 interface or elevated privileges are needed. Without `WG_PEER_IP_WHEEL`, these
 tests are skipped; an invalid wheel path fails rather than skipping. Set the
 variable when running the full suite to include them alongside the unit tests.
+
+### Continuous Integration
+
+GitHub Actions runs the unit and installed-command smoke tests on Ubuntu with
+Python 3.10 and the latest stable Python 3 release. Each job validates the
+Poetry metadata and lock file, installs dependencies, and builds the wheel and
+source distribution before testing. The workflow runs on pushes and pull
+requests, and can also be started manually from the Actions tab.
