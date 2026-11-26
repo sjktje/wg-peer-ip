@@ -71,5 +71,24 @@ poetry run pytest
 poetry build
 ```
 
-Tests mock `wg` and the clock; they do not require WireGuard or elevated
-privileges. Pytest is a development dependency only.
+Unit tests mock `wg` and the clock; they do not require WireGuard or elevated
+privileges. Pytest is a development dependency only. Development requires
+Poetry 2.x.
+
+### Installed-Command Smoke Tests
+
+On POSIX systems, build a wheel and explicitly select it to run the packaging
+smoke tests:
+
+```sh
+poetry build --format wheel
+WG_PEER_IP_WHEEL=dist/wg_peer_ip-0.1.0-py3-none-any.whl poetry run pytest tests/test_installed_cli.py
+```
+
+These tests install the selected wheel into a temporary virtual environment
+without accessing a package index or installing dependencies. They run the
+installed console command outside the checkout against a fake `wg` executable,
+checking help, IPv4/IPv6 lookups, and failure handling. No real WireGuard
+interface or elevated privileges are needed. Without `WG_PEER_IP_WHEEL`, these
+tests are skipped; an invalid wheel path fails rather than skipping. Set the
+variable when running the full suite to include them alongside the unit tests.
