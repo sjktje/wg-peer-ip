@@ -192,6 +192,36 @@ def test_cli_handshake_option(wg: Mock, capsys: pytest.CaptureFixture[str]) -> N
 
 
 @pytest.mark.parametrize(
+    ("timestamp", "message"),
+    [
+        (NOW - 301, "peer handshake is 301 seconds old (maximum 300)"),
+        (0, "peer has no recorded handshake"),
+        (NOW + 1, "peer handshake is in the future; check the system clock"),
+    ],
+    ids=["stale", "missing", "future"],
+)
+def test_cli_handshake_rejection(
+    wg: Mock,
+    capsys: pytest.CaptureFixture[str],
+    timestamp: int,
+    message: str,
+) -> None:
+    """Reject invalid handshake ages without printing the retrieved endpoint."""
+    wg.side_effect = [
+        wg.return_value,
+        subprocess.CompletedProcess([], 0, stdout=f"{KEY}\t{timestamp}\n"),
+    ]
+    assert cli.main(["--max-handshake-age", "300", "wg0", KEY]) == 1
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == f"wg-peer-ip: {message}\n"
+    assert [call.args[0] for call in wg.call_args_list] == [
+        ["wg", "show", "wg0", "endpoints"],
+        ["wg", "show", "wg0", "latest-handshakes"],
+    ]
+
+
+@pytest.mark.parametrize(
     "args",
     [
         ["-4", "-6", "wg0", KEY],
